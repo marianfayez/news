@@ -1,80 +1,86 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news/bloc/cubit.dart';
+import 'package:news/bloc/states.dart';
 import 'package:news/models/news_model.dart';
-
-import '../api_manager.dart';
 import '../models/sources_model.dart';
 import 'news_item.dart';
 
-class SourcesSection extends StatefulWidget {
+class SourcesSection extends StatelessWidget {
   String categoryId;
-   SourcesSection({required this.categoryId,super.key});
-
-  @override
-  State<SourcesSection> createState() => _SourcesSectionState();
-}
-
-class _SourcesSectionState extends State<SourcesSection> {
-int selectedIndex=0;
+  Function onTap;
+  SourcesSection({required this.categoryId,required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SourcesModel>(
-        future: ApiManager.getSources(widget.categoryId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else {
-            List<Sources> data = snapshot.data?.sources ?? [];
+    return BlocProvider(
+      create: (context) => HomeCubit()..getSources(categoryId),
+      child: BlocConsumer<HomeCubit, HomeStates>(
+        listener: (context,state){
+          if(state is GetNewsErrorState){
+            showDialog(context: context,
+                builder: (context)=>AlertDialog(
+                  title: Text("Error"),
+                  content: Text(state.error),
+                  actions: [ElevatedButton(onPressed: (){
+                    Navigator.pop(context);
+                  }, child: Text("Home"))],
+                ));
+          }
+          else if(state is GetSourcesErrorState){
+            showDialog(context: context,
+                builder: (context)=>AlertDialog(
+                  title: Text("Error"),
+                  content: Text(state.error),
+                  actions: [ElevatedButton(onPressed: (){
+                    onTap();
+                  }, child: Text("ok"))],
+                ));
+          }
+        },
+        builder: (context, state) {
+          if (state is GetSourcesLoadingState || state is GetNewsLoadingState) {
+            return Center(child: CircularProgressIndicator());
+          }
+          else {
+            var bloc = BlocProvider.of<HomeCubit>(context);
+            var list = bloc.sourcesModel?.sources??[];
             return Column(
               children: [
                 DefaultTabController(
-                  initialIndex: selectedIndex,
-                    length: data.length,
+                    initialIndex: bloc.selectedIndex,
+                    length: list.length,
                     child: TabBar(
-                      onTap: (value){
-                        selectedIndex=value;
-                        setState(() {
-                        });
-                      },
+                        onTap: (value) {
+                          bloc.changeIndex(value);
+                        },
                         isScrollable: true,
                         dividerColor: Colors.transparent,
-                        indicatorColor: Theme.of(context).primaryColor,
-                        labelColor: Theme.of(context).primaryColor,
-                        tabs: data
+                        indicatorColor: Theme
+                            .of(context)
+                            .primaryColor,
+                        labelColor: Theme
+                            .of(context)
+                            .primaryColor,
+                        tabs: list
                             .map((element) => Tab(text: element.name))
                             .toList())),
                 Expanded(
-                    child: FutureBuilder<NewsModel>(
-                        future: ApiManager.getNewsData(data[selectedIndex].id??""),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                                child: Text("Error: ${snapshot.error}"));
-                          } else {
-                            var data = snapshot.data?.articles ?? [];
-                            if(data.isEmpty){
-                              return const Center(child: Text("No Data Found"));
-                            }
-                            return ListView.builder(
+                    child: ListView.builder(
                               itemBuilder: (context, index) {
                                 return NewsItem(
-                                  articles: data[index],
+                                  articles: bloc.newsModel!.articles![index],
                                 );
                               },
-                              itemCount: data.length,
-                            );
-                          }
-                        }))
-              ],
-            );
+                              itemCount: bloc.newsModel?.articles?.length??0,
+                            )
+                        )]);
+
           }
-        });
+        },
+      ),
+    );
   }
+
+
 }

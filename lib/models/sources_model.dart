@@ -1,11 +1,15 @@
 class SourcesModel {
   String? status;
   List<Sources>? sources;
+  String? code;
+  String? message;
 
-  SourcesModel({this.status, this.sources});
+  SourcesModel({this.status, this.sources,this.code,this.message});
 
   SourcesModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
+    code = json['code'];
+    message = json['message'];
     if (json['sources'] != null) {
       sources = <Sources>[];
       json['sources'].forEach((v) {

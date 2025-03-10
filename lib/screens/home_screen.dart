@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:news/api_manager.dart';
 import 'package:news/models/sources_model.dart';
 import 'package:news/widgets/category_section.dart';
 import 'package:news/widgets/sources_section.dart';
@@ -26,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer:AppDrawer(onTab: onDrawerTab,),
       body: selectedCategory == null ? CategorySection(onTab:onSelectedCategory,):
-      SourcesSection(categoryId: selectedCategory!,),
+      SourcesSection(categoryId: selectedCategory!,onTap: onDrawerTab,),
     );
   }
 

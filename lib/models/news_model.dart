@@ -2,12 +2,17 @@ import 'package:news/models/sources_model.dart';
 
 class NewsModel {
   NewsModel({
-      this.status, 
-      this.totalResults, 
+      this.status,
+    this.code,
+    this.message,
+    this.totalResults,
       this.articles,});
 
   NewsModel.fromJson(dynamic json) {
     status = json['status'];
+    code = json['code'];
+    message = json['message'];
+
     totalResults = json['totalResults'];
     if (json['articles'] != null) {
       articles = [];
@@ -19,7 +24,8 @@ class NewsModel {
   String? status;
   int? totalResults;
   List<Articles>? articles;
-
+  String? code;
+  String? message;
 }
 
 class Articles {

@@ -1,3 +1,4 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news/provider/my_provider.dart';
@@ -7,8 +8,10 @@ import 'package:news/theme/light_theme.dart';
 import 'package:news/theme/my_theme.dart';
 import 'package:provider/provider.dart';
 
-void main(){
+import 'bloc/bloc_observer.dart';
 
+void main(){
+  Bloc.observer = MyBlocObserver();
   runApp(ChangeNotifierProvider(
     create:(context)=>MyProvider(),
     child: MyApp(
