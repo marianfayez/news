@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news/bloc/states.dart';
 import 'package:http/http.dart' as http;
 import '../models/news_model.dart';
@@ -12,6 +13,7 @@ class HomeCubit extends Cubit<HomeStates>{
 
   HomeCubit():super (HomeInitState());
 
+  static HomeCubit get(context)=> BlocProvider.of(context);
   void getSources(String categoryId)async{
     try{
       emit(GetSourcesLoadingState());

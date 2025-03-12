@@ -43,16 +43,15 @@ class SourcesSection extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           }
           else {
-            var bloc = BlocProvider.of<HomeCubit>(context);
-            var list = bloc.sourcesModel?.sources??[];
+            var list = HomeCubit.get(context).sourcesModel?.sources??[];
             return Column(
               children: [
                 DefaultTabController(
-                    initialIndex: bloc.selectedIndex,
+                    initialIndex: HomeCubit.get(context).selectedIndex,
                     length: list.length,
                     child: TabBar(
                         onTap: (value) {
-                          bloc.changeIndex(value);
+                          HomeCubit.get(context).changeIndex(value);
                         },
                         isScrollable: true,
                         dividerColor: Colors.transparent,
@@ -69,10 +68,10 @@ class SourcesSection extends StatelessWidget {
                     child: ListView.builder(
                               itemBuilder: (context, index) {
                                 return NewsItem(
-                                  articles: bloc.newsModel!.articles![index],
+                                  articles: HomeCubit.get(context).newsModel!.articles![index],
                                 );
                               },
-                              itemCount: bloc.newsModel?.articles?.length??0,
+                              itemCount: HomeCubit.get(context).newsModel?.articles?.length??0,
                             )
                         )]);
 
