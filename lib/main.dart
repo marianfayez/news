@@ -1,17 +1,29 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive/hive.dart';
+import 'package:news/internet_service.dart';
+import 'package:news/models/sources_model.dart';
 import 'package:news/provider/my_provider.dart';
 import 'package:news/screens/splash_screen.dart';
 import 'package:news/theme/dark_theme.dart';
 import 'package:news/theme/light_theme.dart';
 import 'package:news/theme/my_theme.dart';
 import 'package:provider/provider.dart';
-
+import 'package:hive_flutter/hive_flutter.dart';
 import 'bloc/bloc_observer.dart';
+import 'models/news_model.dart';
 
-void main(){
+void main()async{
+  WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = MyBlocObserver();
+  InternetService().init();
+  await Hive.initFlutter();
+  Hive.registerAdapter(NewsModelAdapter());
+  Hive.registerAdapter(ArticlesAdapter());
+  Hive.registerAdapter(SourcesAdapter());
+  Hive.registerAdapter(SourcesModelAdapter());
+
   runApp(ChangeNotifierProvider(
     create:(context)=>MyProvider(),
     child: MyApp(

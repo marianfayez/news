@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news/bloc/cubit.dart';
 import 'package:news/bloc/states.dart';
 import 'package:news/models/news_model.dart';
+import 'package:news/repository/repo_local_impl.dart';
+import 'package:news/repository/repo_remote_impl.dart';
 import '../models/sources_model.dart';
 import 'news_item.dart';
 
@@ -11,36 +13,37 @@ class SourcesSection extends StatelessWidget {
   Function onTap;
   SourcesSection({required this.categoryId,required this.onTap, super.key});
 
+  bool hasInternet = false;
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeCubit()..getSources(categoryId),
+      create: (context) => HomeCubit(repo: hasInternet? RepoRemoteImpl():RepoLocalImpl())..getSources(categoryId),
       child: BlocConsumer<HomeCubit, HomeStates>(
         listener: (context,state){
           if(state is GetNewsErrorState){
             showDialog(context: context,
                 builder: (context)=>AlertDialog(
-                  title: Text("Error"),
-                  content: Text(state.error),
+                  title: const Text("Error"),
+                  content: Text(state.error,style: const TextStyle(color: Colors.black),),
                   actions: [ElevatedButton(onPressed: (){
                     Navigator.pop(context);
-                  }, child: Text("Home"))],
+                  }, child: const Text("Home"))],
                 ));
           }
           else if(state is GetSourcesErrorState){
             showDialog(context: context,
                 builder: (context)=>AlertDialog(
-                  title: Text("Error"),
-                  content: Text(state.error),
+                  title: const Text("Error"),
+                  content:  Text(state.error,style: const TextStyle(color: Colors.black),),
                   actions: [ElevatedButton(onPressed: (){
                     onTap();
-                  }, child: Text("ok"))],
+                  }, child: const Text("ok"))],
                 ));
           }
         },
         builder: (context, state) {
           if (state is GetSourcesLoadingState || state is GetNewsLoadingState) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           else {
             var list = HomeCubit.get(context).sourcesModel?.sources??[];
